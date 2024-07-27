@@ -10,11 +10,11 @@
 input {
     text-align: center;
     padding: 5px 0;
-    height: 50px;
-    width: 130px;
+    border-radius: 10px;
     background-color: #fff;
-    border: 10px solid #4cdafe;
-    border-radius: 15px;
+    border: 2px solid #4cdafe;
+    color: #4cdafe;
+    font-size: 20px;
 }
 
 input::placeholder {
@@ -24,6 +24,13 @@ input::placeholder {
 .joinRoom-btn {
     color: #fff;
     width: 100px;
-    font-weight: 600;
     background-color: #86ee04;
+}
+
+.joining-room h2 {
+    margin: 10px;
+}
+
+.avatar-list {
+    margin: 15px 0;
 }

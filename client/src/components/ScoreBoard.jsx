@@ -15,18 +15,15 @@ export default function ScoreBoard({ players }) {
 
     return (
         <div className='score-board'>
-            <div className='player-score'>
-                <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player1.avatar]})` }} />
-                <div className="player-score__points">
-                    {player1.points}
-                </div>
+            <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player1.avatar]})` }} />
+            <div className="player-score__points">
+                {player1.points}
             </div>
-            <div className='player-score'>
-                <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player2.avatar]})` }} />
-                <div className="player-score__points">
-                    {player2.points}
-                </div>
+            <div className='dash' />
+            <div className="player-score__points">
+                {player2.points}
             </div>
+            <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player2.avatar]})` }} />
         </div>
     )
 }
