@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: white;
+  text-align: center;
+}
+
+.layout {
+  display: flex;
+  align-items: center;
+  background-color: #6d53f7;
+  height: 100vh;
+  border: 2px solid #efd4f8;
+  padding: 40px;
+}
+
+@media (max-width: 600px) {
+  .app {}
+}
+
+h1 {
+  color: red;
+  text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;
+
+}
+
+input:focus {
+  outline: none;
+}

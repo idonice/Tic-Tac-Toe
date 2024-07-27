@@ -1,0 +1,29 @@
+.joining-room {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    height: 100vh;
+}
+
+input {
+    text-align: center;
+    padding: 5px 0;
+    height: 50px;
+    width: 130px;
+    background-color: #fff;
+    border: 10px solid #4cdafe;
+    border-radius: 15px;
+}
+
+input::placeholder {
+    color: #4cdafe;
+}
+
+.joinRoom-btn {
+    color: #fff;
+    width: 100px;
+    font-weight: 600;
+    background-color: #86ee04;
+}
