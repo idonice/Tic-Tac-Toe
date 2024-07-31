@@ -1,7 +1,7 @@
 import '../style/game.css';
 const Square = ({ value, onClick }) => {
     return (
-        <div className="square" onClick={onClick}>
+        <div className={`${value == 'x' ? 'square x-sign' : 'square o-sign'}`} onClick={onClick}>
             {value}
         </div>
     );

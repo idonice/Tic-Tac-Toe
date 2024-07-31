@@ -13,86 +13,77 @@ const io = new Server(server, { cors: { origin: "*", methods: "*" } });
 const rooms = {};
 
 io.on('connection', socket => {
-
     let roomNumber;
 
-    socket.on('createRoom', () => {
-        roomNumber = generateRoomNumber();
-        //******************* */
-        socket.join(roomNumber);
-        console.log(socket.id);
-        sockets = Array.from(io.sockets.adapter.rooms.get(roomNumber));
-        console.log(`${sockets.length} in room: ${sockets[0]} `);
-        //******************* */
+    socket.on('createRoom', (selectedAvatar, selectedSign, name) => {
+        roomNumber = generateRoomNumber()
         rooms[roomNumber] = {
-            players: [socket],
-            // players: [socket.id],
+            // players: [socket],
             board: Array(9).fill(null),
+            names: [name, null],
             scores: [0, 0],
-            avatars: [],
+            avatars: [selectedAvatar, null],
             hostTurn: true,
-            hostSign: null
+            hostSign: selectedSign
         };
-        socket.emit('roomCreated', roomNumber);
+        roomNumber = String(roomNumber);
+        socket.join(roomNumber);
+        sockets = Array.from(io.sockets.adapter.rooms.get(roomNumber));
+        io.to(roomNumber).emit('roomCreated', roomNumber);
     });
 
-    socket.on('joinRoom', (roomNumber) => {
-        //******************* */
-        socket.join(roomNumber);
-        rooms[roomNumber].players.push(socket);
-        playersInRoom = rooms[roomNumber]?.players.map((p) => p.id);
-        sockets = Array.from(io.sockets.adapter.rooms.get(roomNumber));
-        console.log(`${sockets.length} in room: ${sockets[0]}`);
-        //******************* */
-        if (rooms[roomNumber].players.length === 2) {
-            console.log('test');
-            if (rooms[roomNumber].hostSign) {
-                console.log('host:', rooms[roomNumber].hostSign);
-                io.to(playersInRoom).emit('startGame', roomNumber, rooms[roomNumber].hostTurn);
-                // io.to(roomNumber).emit('startGame', roomNumber, rooms[roomNumber].hostTurn);
+    socket.on('joinRoom', (roomNumber, selectedAvatar, name) => {
+        roomNumber = String(roomNumber);
+        if (!rooms[roomNumber]) {
+            socket.emit('error', 'Room does not exist');
+            return;
+        } else if (io.sockets.adapter.rooms.get(roomNumber).size == 2) {
+            socket.emit('error', 'Room is full');
+            return;
+        }
+        else {
+            socket.join(roomNumber);
+            rooms[roomNumber].avatars[1] = selectedAvatar;
+            rooms[roomNumber].names[1] = name;
+            sockets = Array.from(io.sockets.adapter.rooms.get(roomNumber));
+            if (io.sockets.adapter.rooms.get(roomNumber).size == 2) {
+                io.to(roomNumber).emit('startGame', roomNumber, rooms[roomNumber]);
             }
         }
     });
 
     socket.on('selectSign', (selectedSign, roomNumber) => {
-        playersInRoom = rooms[roomNumber]?.players.map((p) => p.id);
         rooms[roomNumber].hostSign = selectedSign;
-        console.log(selectedSign);
-        if (playersInRoom && playersInRoom.length === 2) {
-            io.to(playersInRoom).emit('startGame', roomNumber, rooms[roomNumber].hostTurn);
-            // io.to(roomNumber).emit('startGame', roomNumber, rooms[roomNumber].hostTurn);
+        if (io.sockets.adapter.rooms.get(roomNumber)?.size === 2) {
+            io.to(roomNumber).emit('startGame', roomNumber, rooms[roomNumber].hostTurn);
         }
     })
 
 
     socket.on('move', (index, roomNumber) => {
-        console.log(rooms[roomNumber]);
-        playersInRoom = rooms[roomNumber]?.players.map((p) => p.id);
-        const playerSign = rooms[roomNumber].hostTurn ? rooms[roomNumber].hostSign : (rooms[roomNumber].hostSign === 'X' ? 'O' : 'X');
+        const playerSign = rooms[roomNumber].hostTurn ? rooms[roomNumber].hostSign : (rooms[roomNumber].hostSign === 'x' ? 'o' : 'x');
         rooms[roomNumber].board[index] = playerSign;
         rooms[roomNumber].hostTurn = !rooms[roomNumber].hostTurn;
-        io.to(playersInRoom).emit('updateBoard', rooms[roomNumber].board, rooms[roomNumber].hostTurn)
         io.to(roomNumber).emit('updateBoard', rooms[roomNumber].board, rooms[roomNumber].hostTurn)
 
     })
 
     socket.on('gameOver', (calculatedWinner, roomNumber) => {
-        playersInRoom = rooms[roomNumber]?.players.map((p) => p.id);
-        const hostSign = rooms[roomNumber]?.hostSign;
-        // if (calculatedWinner == hostSign) {
-        //     console.log(hostSign, calculatedWinner);
-        //     rooms[roomNumber].scores[0] += 1;
-        // } else {
-        //     rooms[roomNumber].scores[1] += 1;
-        // }
-        // io.to(playersInRoom).emit('updateScoreBoard', rooms[roomNumber].scores)
+        const hostSign = rooms[roomNumber].hostSign;
+        let winnerIndex = 0;
+        console.log(calculatedWinner, hostSign);
+        if (calculatedWinner != hostSign) {
+            console.log('guest won');
+            winnerIndex = 1;
+        }
+        io.to(roomNumber).emit('updateScoreBoard', winnerIndex)
 
     })
 
     socket.on('gameRestart', (roomNumber) => {
-        playersInRoom = rooms[roomNumber]?.players.map((p) => p.id);
         rooms[roomNumber].board = Array(9).fill(null);
-        io.to(playersInRoom).emit('restart')
+        roomNumber = String(roomNumber);
+        io.to(roomNumber).emit('restart')
 
     })
     socket.on('disconnect', () => {

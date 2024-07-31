@@ -18,21 +18,17 @@ body {
 .layout {
   display: flex;
   align-items: center;
+  justify-content: center;
   background-color: #6d53f7;
   height: 100vh;
+  width: 100vw;
   border: 2px solid #efd4f8;
   padding: 40px;
+  box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
-  .app {}
-}
 
-h1 {
-  color: red;
-  text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;
 
-}
 
 input:focus {
   outline: none;

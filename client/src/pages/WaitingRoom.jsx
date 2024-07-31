@@ -7,21 +7,19 @@ export default function WaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation();
     const roomNumber = location.state?.roomNumber;
-    const isHost = location.state?.isHost;
+    const hostAvatar = location.state?.hostAvatar;
     const [selectedSign, setSelectedSign] = useState('X');
     const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
     useEffect(() => {
-        const startGameListener = (roomNumber, selectedSign) => {
-            navigate('/game', { state: { roomNumber, isHost, selectedSign } });
-        };
-
-        socket.on('startGame', startGameListener);
+        socket.on('startGame', (roomNumber, room) => {
+            navigate('/game', { state: { roomNumber, room, isHost: true } });
+        });
 
         return () => {
-            socket.off('startGame', startGameListener);
+            // socket.off('startGame', startGameListener);
         };
-    }, [navigate, isHost]);
+    }, [navigate]);
 
     const handleSignChange = (event) => {
         setSelectedSign(event.target.value);
@@ -30,6 +28,7 @@ export default function WaitingRoom() {
     const handleSubmit = (event) => {
         event.preventDefault();
         setIsFormSubmitted(true);
+        console.log(selectedSign);
         socket.emit('selectSign', selectedSign, roomNumber);
     };
 
@@ -37,7 +36,7 @@ export default function WaitingRoom() {
         <div>
             <h2>Waiting Room</h2>
             <p>Room Number: {roomNumber}</p>
-            {isHost && !isFormSubmitted && ( // Show form only to the isHost
+            {/* {isHost && !isFormSubmitted && ( // Show form only to the isHost
                 <form onSubmit={handleSubmit}>
                     <label>
                         Choose your sign:
@@ -48,7 +47,7 @@ export default function WaitingRoom() {
                     </label>
                     <button type="submit">Submit</button>
                 </form>
-            )}
+            )} */}
         </div>
     );
 }

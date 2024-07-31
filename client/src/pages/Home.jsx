@@ -18,19 +18,14 @@ export default function Home() {
 
 
     const createGameHandler = () => {
-        socket.emit('createRoom');
-        console.log('test');
-        socket.on('roomCreated', roomNumber => {
-            console.log(`room created : ${roomNumber}`);
-            navigate('/waiting', { state: { roomNumber, isHost: true } });
-        });
+        navigate('/create');
     };
     return (
         <div className='home-page'>
             <div className='tic-tac-toe'>
-                <h1 className='pulse'>TIC</h1>
-                <h1 className='pulse'>TAC</h1>
-                <h1 className='pulse'>TOE</h1>
+                <h1 className='pulse' style={{ color: '#fc8aff' }}>TIC</h1>
+                <h1 className='pulse' style={{ color: '#ffdd17' }}>TAC</h1>
+                <h1 className='pulse' style={{ color: 'blue' }}>TOE</h1>
             </div>
             <button className='join-btn' onClick={joinHandler}>JOIN ROOM</button>
             <button className='create-btn' onClick={createGameHandler}>CREATE GAME</button>

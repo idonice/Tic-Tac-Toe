@@ -10,20 +10,26 @@ import avatar8 from '../assets/images/avatar8.svg';
 import '../style/game.css';
 
 export default function ScoreBoard({ players }) {
-    const [player1, player2] = players;
-    const avatars = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8];
+    const [host, guest] = players;
+    // const avatars = [avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8];
 
     return (
         <div className='score-board'>
-            <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player1.avatar]})` }} />
+            <div>
+                <div className="player-score__avatar" style={{ backgroundImage: `url(${host.avatar})` }} />
+                <span>{host.name}</span>
+            </div>
             <div className="player-score__points">
-                {player1.points}
+                {host.points}
             </div>
             <div className='dash' />
             <div className="player-score__points">
-                {player2.points}
+                {guest.points}
             </div>
-            <div className="player-score__avatar" style={{ backgroundImage: `url(${avatars[player2.avatar]})` }} />
+            <div>
+                <div className="player-score__avatar" style={{ backgroundImage: `url(${guest.avatar})` }} />
+                <span>{guest.name}</span>
+            </div>
         </div>
     )
 }

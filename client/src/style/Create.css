@@ -1,0 +1,53 @@
+.create-room {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.symbols {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+
+.symbol {
+    display: flex;
+    justify-content: center;
+    font-size: 80px;
+    height: 80px;
+    width: 80px;
+    align-items: center;
+    cursor: pointer;
+}
+
+.symbol:hover {
+    /* font-size: 90px; */
+}
+
+.x-symbol {
+    color: red;
+
+    text-shadow: -1px 1px 0 #000,
+        3px 3px 0 #000,
+        1px -1px 0 #000,
+        -1px -1px 0 #000;
+}
+
+.o-symbol {
+    color: #fff;
+    text-shadow: -1px 1px 0 red,
+        3px 3px 0 red,
+        1px -1px 0 red,
+        -1px -1px 0 red;
+}
+
+.active-symbol {
+    font-size: 110px;
+}
+
+.go-btn {
+    margin: 40px;
+    width: 70px;
+    background-color: #ffdd17;
+}

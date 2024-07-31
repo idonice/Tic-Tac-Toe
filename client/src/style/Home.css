@@ -8,11 +8,12 @@
 }
 
 button {
-    border-radius: 15px;
-    height: 30px;
+    border-radius: 20px;
+    height: 35px;
     border: 2px solid #fff;
     box-shadow: rgba(0, 0, 0, 0.4) 2px 2px;
-    width: 150px;
+    width: 200px;
+
 }
 
 .join-btn {
@@ -43,9 +44,28 @@ button {
 
 .pulse {
     animation: pulse-animation 1.5s infinite;
+    text-shadow: -1px 1px 0 #fff,
+        1px 1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px -1px 0 #fff;
 }
 
 .home-page {
     text-align: center;
     padding: 20px;
+}
+
+
+@media (min-width: 600px) {
+    .pulse {
+        font-size: 80px;
+    }
+
+    .home-page button {
+        width: 200px;
+        height: 40px;
+        border-radius: 20px;
+        font-size: larger;
+    }
+
 }

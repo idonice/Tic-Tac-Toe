@@ -14,7 +14,12 @@ const Game = () => {
     const location = useLocation();
     const roomNumber = location.state?.roomNumber;
     const isHost = location.state?.isHost;
-
+    const room = location.state?.room;
+    // const room.avatars[0] = location.state?.room.avatars[0];
+    // const room.avatars[1] = location.state?.room.avatars[1];
+    const hostSign = room.hostSign;
+    const guestSign = hostSign == 'x' ? 'o' : 'x';
+    console.log(isHost);
     useEffect(() => {
         return () => {
             socket.disconnect();
@@ -32,6 +37,14 @@ const Game = () => {
             setSquares(board);
         });
 
+
+        socket.on('updateScoreBoard', winnerIndex => {
+            setScores(prevScores => {
+                const newScores = [...prevScores];
+                newScores[winnerIndex] += 1;
+                return newScores;
+            });
+        })
         socket.on('restart', () => {
             setGameOver(false);
             setSquares(Array(9).fill(null))
@@ -46,16 +59,22 @@ const Game = () => {
     useEffect(() => {
         const calculatedWinner = calculateWinner(squares);
         if (calculatedWinner) {
+            // if (calculateWinner == hostSign) {
+            //     setScores(prevScores => {
+            //         return [prevScores[0] + 1, prevScores[1]];
+            //     });
+            // } else {
+            //     setScores(prevScores => {
+            //         return [prevScores[0], prevScores[1] + 1];
+            //     });
+            // }
             setWinner(calculatedWinner);
             setGameOver(true);
-            socket.emit('gameOver', (calculatedWinner, roomNumber))
-            socket.on('updateScoreBoard', scores => {
-                setScores(scores);
-            })
+            socket.emit('gameOver', calculatedWinner, roomNumber)
         }
     }, [squares]);
 
-    const gameRestart = () => {
+    const gameRestart = (roomNumber) => {
         socket.emit('gameRestart', roomNumber);
     }
 
@@ -67,18 +86,18 @@ const Game = () => {
         }
     };
 
-    const status = winner ? `WINNER: ${winner}` : `${(hostTurn && isHost) || (!hostTurn && !isHost) ? 'YOUR TURN' : "OPPONENT'S TURN"}`;
+    const status = winner ? `WINNER: ${winner == hostSign ? room.names[0] : room.names[1]}` : `${(hostTurn && isHost) || (!hostTurn && !isHost) ? 'YOUR TURN' : "OPPONENT'S TURN"}`;
 
     return (
         <div className="game">
-            <ScoreBoard players={[{ points: scores[0], avatar: 2 }, { points: scores[1], avatar: 4 }]} />
+            <ScoreBoard players={[{ points: scores[0], avatar: room.avatars[0], name: room.names[0] }, { points: scores[1], avatar: room.avatars[1], name: room.names[1] }]} />
             <div className="game-board">
                 <Board squares={squares} onClick={handleClick} />
             </div>
             <div className="game-info">
                 <div>{status}</div>
             </div>
-            {gameOver && <button onClick={gameRestart}>rematch</button>}
+            {gameOver && <button onClick={() => gameRestart(roomNumber)}>PLAY AGAIN</button>}
         </div>
     );
 };
