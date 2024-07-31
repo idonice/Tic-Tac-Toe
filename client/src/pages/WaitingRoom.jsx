@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import BounceLoader from "react-spinners/ClipLoader";
+
 import socket from '../Socket';
 
 export default function WaitingRoom() {
@@ -12,8 +14,8 @@ export default function WaitingRoom() {
     const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
     useEffect(() => {
-        socket.on('startGame', (roomNumber, room) => {
-            navigate('/game', { state: { roomNumber, room, isHost: true } });
+        socket.on('startGame', (roomNumber, room, onePlayerMode) => {
+            navigate('/game', { state: { roomNumber, room, isHost: true, onePlayerMode } });
         });
 
         return () => {
@@ -25,29 +27,17 @@ export default function WaitingRoom() {
         setSelectedSign(event.target.value);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setIsFormSubmitted(true);
-        console.log(selectedSign);
-        socket.emit('selectSign', selectedSign, roomNumber);
+    const playAloneHandler = () => {
+        socket.emit('playAlone', roomNumber);
     };
 
     return (
         <div>
-            <h2>Waiting Room</h2>
-            <p>Room Number: {roomNumber}</p>
-            {/* {isHost && !isFormSubmitted && ( // Show form only to the isHost
-                <form onSubmit={handleSubmit}>
-                    <label>
-                        Choose your sign:
-                        <select value={selectedSign} onChange={handleSignChange}>
-                            <option value="X">X</option>
-                            <option value="O">O</option>
-                        </select>
-                    </label>
-                    <button type="submit">Submit</button>
-                </form>
-            )} */}
+            <h3>WAITING FOR OPPONENT</h3>
+            <BounceLoader color='#55eeff' />
+            <p style={{ marginBottom: '-20px' }}>ROOM NUMBER</p>
+            <h1>{roomNumber}</h1>
+            <button className='green-btn' onClick={playAloneHandler}>PLAY AGAINST </button>
         </div>
     );
 }

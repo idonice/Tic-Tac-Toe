@@ -15,11 +15,12 @@ const Game = () => {
     const roomNumber = location.state?.roomNumber;
     const isHost = location.state?.isHost;
     const room = location.state?.room;
+    const onePlayerMode = location.state?.onePlayerMode;
     // const room.avatars[0] = location.state?.room.avatars[0];
     // const room.avatars[1] = location.state?.room.avatars[1];
     const hostSign = room.hostSign;
+    console.log(onePlayerMode);
     const guestSign = hostSign == 'x' ? 'o' : 'x';
-    console.log(isHost);
     useEffect(() => {
         return () => {
             socket.disconnect();
@@ -37,7 +38,13 @@ const Game = () => {
             setSquares(board);
         });
 
-
+        socket.on('gameOver', (newScores, board, hostTurn, winner) => {
+            setScores(newScores);
+            setSquares(board);
+            setHostTurn(hostTurn);
+            setWinner(winner);
+            setGameOver(true);
+        });
         socket.on('updateScoreBoard', winnerIndex => {
             setScores(prevScores => {
                 const newScores = [...prevScores];
@@ -86,18 +93,26 @@ const Game = () => {
         }
     };
 
-    const status = winner ? `WINNER: ${winner == hostSign ? room.names[0] : room.names[1]}` : `${(hostTurn && isHost) || (!hostTurn && !isHost) ? 'YOUR TURN' : "OPPONENT'S TURN"}`;
+    // const status = winner ? `WINNER: ${winner == hostSign ? room.names[0] : room.names[1]}` : `${(hostTurn && isHost) || (!hostTurn && !isHost) ? 'YOUR TURN' : "OPPONENT'S TURN"}`;
+    const status = winner
+        ? `${winner == hostSign ? room.names[0] : room.names[1]} WON!`
+        : (onePlayerMode
+            ? (hostTurn ? 'YOUR TURN' : "JINJA'S TURN")
+            : ((hostTurn && isHost) || (!hostTurn && !isHost)
+                ? 'YOUR TURN'
+                : "OPPONENT'S TURN")
+        );
 
     return (
         <div className="game">
-            <ScoreBoard players={[{ points: scores[0], avatar: room.avatars[0], name: room.names[0] }, { points: scores[1], avatar: room.avatars[1], name: room.names[1] }]} />
+            <ScoreBoard players={[{ points: scores[0], avatar: room.avatars[0], name: room.names[0] }, { points: scores[1], avatar: (room.avatars[1] || '/static/media/botAvatar.svg'), name: room.names[1] }]} />
             <div className="game-board">
                 <Board squares={squares} onClick={handleClick} />
             </div>
             <div className="game-info">
                 <div>{status}</div>
             </div>
-            {gameOver && <button onClick={() => gameRestart(roomNumber)}>PLAY AGAIN</button>}
+            {gameOver && <button className='green-btn' onClick={() => gameRestart(roomNumber)}>PLAY AGAIN</button>}
         </div>
     );
 };

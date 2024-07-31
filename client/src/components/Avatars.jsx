@@ -12,6 +12,7 @@ import avatar6 from '../assets/images/avatar6.svg';
 import avatar7 from '../assets/images/avatar7.svg';
 import avatar8 from '../assets/images/avatar8.svg';
 import avatar9 from '../assets/images/avatar9.svg';
+import avatar10 from '../assets/images/botAvatar.svg';
 
 const avatars = [
     avatar1,
@@ -22,7 +23,8 @@ const avatars = [
     avatar6,
     avatar7,
     avatar8,
-    avatar9
+    avatar9,
+    avatar10
 ];
 
 const Avatars = ({ avatarHandler }) => {

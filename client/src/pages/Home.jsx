@@ -1,21 +1,13 @@
-import React, { useState } from 'react'
-import socket from '../Socket';
+import React from 'react'
 import { useNavigate } from 'react-router-dom';
 import '../style/Home.css';
 
 export default function Home() {
-    const [roomNumber, setRoomNumber] = useState();
     const navigate = useNavigate();
 
     const joinHandler = () => {
         navigate('/join');
     }
-
-    // const submitHandler = () => {
-    //     socket.emit('joinRoom', roomNumber);
-    //     navigate('/waiting', { state: { roomNumber, isHost: false } });
-    // }
-
 
     const createGameHandler = () => {
         navigate('/create');

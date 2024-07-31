@@ -10,11 +10,13 @@ export default function JoinRoom() {
     const [selectedAvatar, setSelectedAvater] = useState(null);
     const [name, setName] = useState('')
     const [avatarError, setAvatarError] = useState(false)
+    const [roomError, setRoomError] = useState(false)
     const [nameError, setNameError] = useState(false)
 
     const navigate = useNavigate();
 
     const roomHandler = (e) => {
+        setRoomError(false);
         setRoomNumber(e.target.value)
     }
 
@@ -40,11 +42,17 @@ export default function JoinRoom() {
         }
     }
 
+
+
     useEffect(() => {
         socket.on('startGame', (roomNumber, room) => {
             console.log('test');
             navigate('/game', { state: { roomNumber, room, isHost: false } });
         });
+        socket.on('roomError', message => {
+            setRoomError(message);
+            setRoomNumber('')
+        })
         return () => {
         };
     }, []);
@@ -52,7 +60,8 @@ export default function JoinRoom() {
     return (
         <div className='joining-room'>
             <input type="text" placeholder='YOUR NAME' value={name} onChange={nameHandler} style={{ border: `${nameError ? '2px solid red' : ''}` }}></input>
-            <input type="text" placeholder='ROOM NUMBER' value={roomNumber} onChange={roomHandler} ></input>
+            <input type="text" placeholder='ROOM NUMBER' value={roomNumber} onChange={roomHandler} style={{ border: `${roomError ? '2px solid red' : ''}`, color: `${roomError ? 'red' : ''}` }} ></input>
+            {roomError && <span style={{ color: 'red' }}>{roomError}</span>}
             <div className='avatar-list'>
                 <h2 style={{ color: `${avatarError ? 'red' : '#fff'}` }}>CHOOSE AVATAR</h2>
                 <Avatars avatarHandler={avatarHandler} />
