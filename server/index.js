@@ -6,11 +6,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-app.use(cors({
-    origin: 'https://tic-tac-toe-beryl-alpha-98.vercel.app/',
-    methods: ['GET', 'POST'],
-    credentials: true,
-}));
+app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods: "*" } });
 
