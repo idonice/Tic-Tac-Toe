@@ -12,7 +12,6 @@ export default function JoinRoom() {
     const [avatarError, setAvatarError] = useState(false)
     const [roomError, setRoomError] = useState(false)
     const [nameError, setNameError] = useState(false)
-
     const navigate = useNavigate();
 
     const roomHandler = (e) => {
@@ -25,7 +24,6 @@ export default function JoinRoom() {
         setNameError(false);
     }
 
-
     const avatarHandler = (avatar) => {
         setAvatarError(false)
         setSelectedAvater(avatar)
@@ -37,12 +35,13 @@ export default function JoinRoom() {
         } else if (!name) {
             setNameError(true)
         }
-        else if (roomNumber) {
+        else if (!roomNumber) {
+            setRoomError('Please enter room number');
+        } else {
             socket.emit('joinRoom', roomNumber, selectedAvatar, name);
+
         }
     }
-
-
 
     useEffect(() => {
         socket.on('startGame', (roomNumber, room) => {
@@ -66,7 +65,7 @@ export default function JoinRoom() {
                 <h2 style={{ color: `${avatarError ? 'red' : '#fff'}` }}>CHOOSE AVATAR</h2>
                 <Avatars avatarHandler={avatarHandler} />
             </div>
-            <button className='joinRoom-btn' onClick={submitHandler}>PLAY</button>
+            <button className='joinRoom-btn' onClick={submitHandler}>JOIN</button>
         </div>
     )
 }

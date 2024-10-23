@@ -9,9 +9,7 @@ export default function WaitingRoom() {
     const navigate = useNavigate();
     const location = useLocation();
     const roomNumber = location.state?.roomNumber;
-    const hostAvatar = location.state?.hostAvatar;
     const [selectedSign, setSelectedSign] = useState('X');
-    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
     useEffect(() => {
         socket.on('startGame', (roomNumber, room, onePlayerMode) => {
@@ -19,7 +17,6 @@ export default function WaitingRoom() {
         });
 
         return () => {
-            // socket.off('startGame', startGameListener);
         };
     }, [navigate]);
 
@@ -37,7 +34,7 @@ export default function WaitingRoom() {
             <BounceLoader color='#55eeff' />
             <p style={{ marginBottom: '-20px' }}>ROOM NUMBER</p>
             <h1>{roomNumber}</h1>
-            <button className='green-btn' onClick={playAloneHandler}>PLAY AGAINST </button>
+            <button className='green-btn' onClick={playAloneHandler}>TO ONE PLAYER MODE</button>
         </div>
     );
 }

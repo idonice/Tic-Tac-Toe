@@ -27,6 +27,9 @@ body {
   box-sizing: border-box;
 }
 
+.red-btn {
+  background-color: red;
+}
 
 .green-btn {
   background-color: #86ee04;

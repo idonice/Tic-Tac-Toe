@@ -1,9 +1,9 @@
 // Game.js (client-side)
 import socket from '../Socket';
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import Board from './Board';
-import ScoreBoard from './ScoreBoard';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Board from '../components/Board';
+import ScoreBoard from '../components/ScoreBoard';
 
 const Game = () => {
     const [squares, setSquares] = useState(Array(9).fill(null));
@@ -11,21 +11,29 @@ const Game = () => {
     const [winner, setWinner] = useState(null);
     const [gameOver, setGameOver] = useState(false);
     const [scores, setScores] = useState([0, 0]);
+
     const location = useLocation();
+    const navigate = useNavigate();
+
     const roomNumber = location.state?.roomNumber;
     const isHost = location.state?.isHost;
     const room = location.state?.room;
     const onePlayerMode = location.state?.onePlayerMode;
-    // const room.avatars[0] = location.state?.room.avatars[0];
-    // const room.avatars[1] = location.state?.room.avatars[1];
     const hostSign = room.hostSign;
     console.log(onePlayerMode);
     const guestSign = hostSign == 'x' ? 'o' : 'x';
+
     useEffect(() => {
+        if (!socket.connected) {
+            navigate('/');
+        }
+
         return () => {
-            socket.disconnect();
+            if (socket.connected) {
+                socket.disconnect();
+            }
         };
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
 
@@ -45,6 +53,7 @@ const Game = () => {
             setWinner(winner);
             setGameOver(true);
         });
+
         socket.on('updateScoreBoard', winnerIndex => {
             setScores(prevScores => {
                 const newScores = [...prevScores];
@@ -52,11 +61,16 @@ const Game = () => {
                 return newScores;
             });
         })
+
         socket.on('restart', () => {
             setGameOver(false);
             setSquares(Array(9).fill(null))
             setWinner(null)
+            if (onePlayerMode) {
+                setHostTurn(true)
+            }
         })
+
         return () => {
             socket.off('move');
             socket.off('updateBoard');
@@ -64,28 +78,29 @@ const Game = () => {
     }, []);
 
     useEffect(() => {
-        const calculatedWinner = calculateWinner(squares);
-        if (calculatedWinner) {
-            // if (calculateWinner == hostSign) {
-            //     setScores(prevScores => {
-            //         return [prevScores[0] + 1, prevScores[1]];
-            //     });
-            // } else {
-            //     setScores(prevScores => {
-            //         return [prevScores[0], prevScores[1] + 1];
-            //     });
-            // }
-            setWinner(calculatedWinner);
+        const winner = calculateWinner(squares);
+        if (winner) {
+            if (winner == hostSign) {
+                setScores(prevScores => {
+                    return [prevScores[0] + 1, prevScores[1]];
+                });
+            } else {
+                setScores(prevScores => {
+                    return [prevScores[0], prevScores[1] + 1];
+                });
+            }
+            console.log(winner);
+            setWinner(winner);
             setGameOver(true);
-            socket.emit('gameOver', calculatedWinner, roomNumber)
+            // socket.emit('gameOver', calculatedWinner, roomNumber)
         }
     }, [squares]);
 
-    const gameRestart = (roomNumber) => {
+    const restartHandler = (roomNumber) => {
         socket.emit('gameRestart', roomNumber);
     }
 
-    const handleClick = (index) => {
+    const clickHandler = (index) => {
         if (!squares[index] && !gameOver && (isHost === hostTurn)) {
             if (socket) {
                 socket.emit('move', index, roomNumber);
@@ -93,26 +108,27 @@ const Game = () => {
         }
     };
 
-    // const status = winner ? `WINNER: ${winner == hostSign ? room.names[0] : room.names[1]}` : `${(hostTurn && isHost) || (!hostTurn && !isHost) ? 'YOUR TURN' : "OPPONENT'S TURN"}`;
+    const hostName = room.names[0].toUpperCase();
+    const guestName = room.names[1].toUpperCase();
     const status = winner
-        ? `${winner == hostSign ? room.names[0] : room.names[1]} WON!`
+        ? `${winner == hostSign ? hostName : guestName} WON!`
         : (onePlayerMode
             ? (hostTurn ? 'YOUR TURN' : "JINJA'S TURN")
-            : ((hostTurn && isHost) || (!hostTurn && !isHost)
-                ? 'YOUR TURN'
-                : "OPPONENT'S TURN")
+            : (((hostTurn && isHost) || (!hostTurn && !isHost)) ? `YOUR TURN`
+                : (isHost && !hostTurn) ? `${guestName}'S TURN` : `${hostName}'S TURN`)
         );
 
     return (
         <div className="game">
             <ScoreBoard players={[{ points: scores[0], avatar: room.avatars[0], name: room.names[0] }, { points: scores[1], avatar: (room.avatars[1] || '/static/media/botAvatar.svg'), name: room.names[1] }]} />
             <div className="game-board">
-                <Board squares={squares} onClick={handleClick} />
+                <Board squares={squares} onClick={clickHandler} />
             </div>
             <div className="game-info">
                 <div>{status}</div>
             </div>
-            {gameOver && <button className='green-btn' onClick={() => gameRestart(roomNumber)}>PLAY AGAIN</button>}
+            {gameOver && <button className='green-btn' onClick={() => restartHandler(roomNumber)}>PLAY AGAIN</button>}
+            {gameOver && <button className='red-btn' onClick={() => navigate('/')}>LEAVE ROOM</button>}
         </div>
     );
 };
