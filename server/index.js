@@ -7,7 +7,7 @@ const cors = require('cors');
 
 const app = express();
 const corsOptions = {
-    origin: ['https://tic-tac-toe-git-main-idonices-projects.vercel.app/', 'http://localhost:3000'],
+    origin: ['https://tic-tac-g1plz2v4e-idonices-projects.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true
 };
