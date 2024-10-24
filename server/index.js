@@ -6,12 +6,18 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+    origin: ['https://tic-tac-toe-git-main-idonices-projects.vercel.app/', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+    credentials: true
+};
+app.use(cors((corsOptions)));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods: "*" } });
 const PORT = process.env.PORT || 5000;
 const rooms = {};
 
+app.use(cors(corsOptions));
 io.on('connection', socket => {
     let roomNumber;
 
