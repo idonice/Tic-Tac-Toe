@@ -4,9 +4,9 @@ import Square from './Square';
 import socket from '../Socket';
 import '../style/game.css';
 
-const Board = ({ squares, onClick }) => {
+const Board = ({ board, onClick }) => {
     const location = useLocation();
-    const roomNumber = location.state?.roomNumber;
+    // const roomNumber = location.state?.roomNumber;
     useEffect(() => {
         return () => {
             socket.disconnect();
@@ -16,7 +16,7 @@ const Board = ({ squares, onClick }) => {
     return (
         <div className="board-layout">
             <div className='board'>
-                {squares.map((value, index) => (
+                {board.map((value, index) => (
                     <Square key={index} value={value} onClick={() => onClick(index)} />
                 ))}
             </div>

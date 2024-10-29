@@ -6,9 +6,6 @@ import '../style/Create.css';
 
 export default function CreateRoom() {
     const navigate = useNavigate();
-    const location = useLocation();
-    // const roomNumber = location.state?.roomNumber;
-    // const isHost = location.state?.isHost;
     const [selectedSign, setSelectedSign] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
     const [name, setName] = useState('')
