@@ -36,6 +36,8 @@
 }
 
 .game-info {
+    min-width: 200px;
+    box-sizing: border-box;
     padding: 10px;
     background-color: #55eeff;
     border-radius: 10px;

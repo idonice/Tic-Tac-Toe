@@ -57,6 +57,8 @@ export default function CreateRoom() {
                 <div className={`symbol o-symbol ${selectedSign == 'o' && 'active-symbol'}`}><span onClick={() => selectSignHandler('o')}>o</span></div>
             </div>
             <button className='go-btn' onClick={goClickHandler}>GO</button>
+            <button className='red-btn' style={{ width: '70px' }} onClick={() => navigate('/')}>BACK</button>
+
         </div>
     )
 }

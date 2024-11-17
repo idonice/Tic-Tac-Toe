@@ -1,5 +1,3 @@
-// server/index.js
-
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -11,11 +9,16 @@ const corsOptions = {
     methods: ['GET', 'POST'],
     credentials: true
 };
-app.use(cors((corsOptions)));
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*", methods: "*" } });
 const PORT = process.env.PORT || 5000;
 const rooms = {};
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client/build', 'index.html'));
+});
 
 app.use(cors(corsOptions));
 io.on('connection', socket => {
@@ -25,23 +28,24 @@ io.on('connection', socket => {
         console.log(selectedAvatar);
         roomNumber = generateRoomNumber()
         rooms[roomNumber] = {
-            // players: [socket],
             board: Array(9).fill(null),
             names: [name, null],
             scores: [0, 0],
             avatars: [selectedAvatar, null],
             hostTurn: true,
             hostSign: selectedSign,
-            onePlayerMode: true
+            onePlayerMode: true,
+            waitings: [null, null]
         };
         roomNumber = String(roomNumber);
         socket.join(roomNumber);
+        socket.roomNumber = roomNumber;
+
         sockets = Array.from(io.sockets.adapter.rooms.get(roomNumber));
         io.to(roomNumber).emit('roomCreated', roomNumber);
     });
 
     socket.on('playAlone', roomNumber => {
-        // roomNumber = String(roomNumber);
         rooms[roomNumber].names[1] = 'ninja';
         rooms[roomNumber].avatars[1] = '/static/media/botAvatar.bf70853f8bb7d3fadef272164dbd7e99.svg'
         const onePlayerMode = true;
@@ -59,6 +63,9 @@ io.on('connection', socket => {
         }
         else {
             socket.join(roomNumber);
+            socket.roomNumber = roomNumber;
+            console.log(socket.roomNumber);
+
             rooms[roomNumber].avatars[1] = selectedAvatar;
             rooms[roomNumber].names[1] = name;
             rooms[roomNumber].onePlayerMode = false;
@@ -105,6 +112,24 @@ io.on('connection', socket => {
 
     })
 
+    socket.on('waitingToRestart', (roomNumber, isHost) => {
+        if (rooms[roomNumber].onePlayerMode) {
+            rooms[roomNumber].board = Array(9).fill(null);
+            io.to(roomNumber).emit('restart');
+        }
+        if (isHost) {
+            rooms[roomNumber].waitings[0] = true;
+        } else {
+            rooms[roomNumber].waitings[1] = true;
+        }
+        if (rooms[roomNumber].waitings[0] && rooms[roomNumber].waitings[1]) {
+            rooms[roomNumber].board = Array(9).fill(null);
+            rooms[roomNumber].waitings[0] = null
+            rooms[roomNumber].waitings[1] = null
+            io.to(roomNumber).emit('restart');
+        }
+    })
+
     socket.on('gameRestart', (roomNumber) => {
         rooms[roomNumber].board = Array(9).fill(null);
         if (rooms[roomNumber].onePlayerMode) {
@@ -114,8 +139,18 @@ io.on('connection', socket => {
         io.to(roomNumber).emit('restart')
 
     })
+
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+        // console.log(`A user disconnected, id: ${socket.id}`);
+        const roomNumber = socket.roomNumber; // Get the room number stored in the socket instance
+        console.log(`Player disconnected: ${socket.id} from room ${roomNumber}`);
+
+        // Broadcast to other players in the room that a player has left
+        if (roomNumber) {
+            console.log('test stop');
+
+            io.to(roomNumber).emit('stopGame');
+        }
     });
 });
 
@@ -137,16 +172,24 @@ const getNextBoardState = (board, playerSign) => {
         return board;
     }
 
-    const randomIndex = Math.floor(Math.random() * availableSpots.length);
-    const chosenSpot = availableSpots[randomIndex];
+    // const randomIndex = Math.floor(Math.random() * availableSpots.length);
+    // const chosenSpot = availableSpots[randomIndex];
 
     const newBoard = board.slice();
-    newBoard[chosenSpot] = sign;
+    // newBoard[chosenSpot] = sign;
+    newBoard[getBestMove(board, playerSign)] = sign;
     console.log(newBoard);
     return newBoard;
 };
 
-const calculateWinner = (squares) => {
+const calculateWinner = (board) => {
+    const availableSpots = board
+        .map((value, index) => (value === null ? index : null))
+        .filter(index => index !== null);
+
+    if (availableSpots.length === 0) {
+        return 'draw';
+    }
     const lines = [
         [0, 1, 2],
         [3, 4, 5],
@@ -159,8 +202,8 @@ const calculateWinner = (squares) => {
     ];
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a];
         }
     }
     return null;

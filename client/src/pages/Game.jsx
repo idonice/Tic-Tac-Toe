@@ -3,12 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Board from '../components/Board';
 import ScoreBoard from '../components/ScoreBoard';
+import BounceLoader from "react-spinners/ClipLoader";
+
 
 const Game = () => {
     const [board, setBoard] = useState(Array(9).fill(null));
     const [hostTurn, setHostTurn] = useState(true);
     const [winner, setWinner] = useState(null);
     const [gameOver, setGameOver] = useState(false);
+    const [playerLeft, setPlayerLeft] = useState(false);
     const [scores, setScores] = useState([0, 0]);
     const [waiting, setWaiting] = useState(false);
     const [status, setStatus] = useState('');
@@ -21,7 +24,8 @@ const Game = () => {
     const room = location.state?.room;
     const onePlayerMode = location.state?.onePlayerMode;
     const hostSign = room.hostSign;
-    // const guestSign = hostSign == 'x' ? 'o' : 'x';
+    const name = isHost ? room.names[0].toUpperCase() : room.names[1].toUpperCase();
+    const opponentName = !isHost ? room.names[0].toUpperCase() : room.names[1].toUpperCase();
 
     useEffect(() => {
         if (!socket.connected) {
@@ -30,6 +34,8 @@ const Game = () => {
 
         return () => {
             if (socket.connected) {
+                console.log('exit');
+                socket.emit('leftRoom', roomNumber);
                 socket.disconnect();
             }
         };
@@ -61,7 +67,12 @@ const Game = () => {
                 return newScores;
             });
         })
+        socket.on('stopGame', () => {
+            console.log('stop');
 
+            setGameOver(true);
+            setPlayerLeft(true);
+        })
 
         socket.on('restart', () => {
             setGameOver(false);
@@ -99,7 +110,6 @@ const Game = () => {
     const restartHandler = (roomNumber) => {
         socket.emit('waitingToRestart', roomNumber, isHost);
         setWaiting(true)
-        // socket.emit('gameRestart', roomNumber);
     }
 
     const clickHandler = (index) => {
@@ -130,25 +140,9 @@ const Game = () => {
                         : `${hostName}'S TURN`;
         }
 
-        // const newStatus = winner
-        //     ? `${winner === hostSign ? hostName : guestName} WON!`
-        //     : (onePlayerMode
-        //         ? (hostTurn ? 'YOUR TURN' : "JINJA'S TURN")
-        //         : (((hostTurn && isHost) || (!hostTurn && !isHost)) ? `YOUR TURN`
-        //             : (isHost && !hostTurn) ? `${guestName}'S TURN` : `${hostName}'S TURN`));
 
         setStatus(newStatus);
     }, [winner, hostTurn, isHost, onePlayerMode, room.names, hostSign]);
-
-    // const hostName = room.names[0].toUpperCase();
-    // const guestName = room.names[1].toUpperCase();
-    // const status = winner
-    //     ? `${winner == hostSign ? hostName : guestName} WON!`
-    //     : (onePlayerMode
-    //         ? (hostTurn ? 'YOUR TURN' : "JINJA'S TURN")
-    //         : (((hostTurn && isHost) || (!hostTurn && !isHost)) ? `YOUR TURN`
-    //             : (isHost && !hostTurn) ? `${guestName}'S TURN` : `${hostName}'S TURN`)
-    //     );
 
     return (
         <div className="game">
@@ -157,9 +151,12 @@ const Game = () => {
                 <Board board={board} onClick={clickHandler} />
             </div>
             <div className="game-info">
-                <div>{status}</div>
+                {(!waiting && !playerLeft) && <div>{status}</div>}
+                {(gameOver && waiting) && <div >{`${'WAITING FOR ' + opponentName}`} <div style={{ marginTop: '2px' }}><BounceLoader size={'20px'} color='#6d53f7' /></div>
+                </div>}
+                {playerLeft && <div style={{ color: 'red' }}>{opponentName} LEFT THE ROOM</div>}
             </div>
-            {(gameOver && !waiting) && <button className='green-btn' onClick={() => restartHandler(roomNumber)}>PLAY AGAIN</button>}
+            {(gameOver && !waiting && !playerLeft) && <button className='green-btn' onClick={() => restartHandler(roomNumber)}>PLAY AGAIN</button>}
             {gameOver && <button className='red-btn' onClick={() => navigate('/')}>LEAVE ROOM</button>}
         </div>
     );

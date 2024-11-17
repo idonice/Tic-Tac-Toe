@@ -1,5 +1,5 @@
 import React from 'react'
-import '../style/game.css';
+import '../style/Game.css';
 
 export default function ScoreBoard({ players }) {
     const [host, guest] = players;

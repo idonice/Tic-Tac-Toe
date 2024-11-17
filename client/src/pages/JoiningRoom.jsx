@@ -66,6 +66,8 @@ export default function JoinRoom() {
                 <Avatars avatarHandler={avatarHandler} />
             </div>
             <button className='joinRoom-btn' onClick={submitHandler}>JOIN</button>
+            <button className='red-btn' style={{ width: '100px' }} onClick={() => navigate('/')}>BACK</button>
+
         </div>
     )
 }
