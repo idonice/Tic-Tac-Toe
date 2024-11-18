@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Square from './Square';
 import socket from '../Socket';
-import '../style/Game.css';
+import '../style/Game2.css';
 
 const Board = ({ board, onClick }) => {
     const location = useLocation();
