@@ -12,7 +12,7 @@ app.get('*', (req, res) => {
 })
 
 const corsOptions = {
-    origin: ['https://tic-tac-g1plz2v4e-idonices-projects.vercel.app', 'http://localhost:3000'],
+    origin: ['https://web-production-2d67.up.railway.app', 'http://localhost:3000'],
     methods: ['GET', 'POST'],
     credentials: true
 };
