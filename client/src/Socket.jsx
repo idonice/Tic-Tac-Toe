@@ -1,8 +1,7 @@
-import io from 'socket.io-client';
+import io from "socket.io-client";
 const SOCKET_URL =
-    process.env.NODE_ENV === 'production'
-        ? 'https://web-production-2d67.up.railway.app/'
-        : 'http://localhost:5000';
-
+  process.env.NODE_ENV === "production"
+    ? "https://tic-tac-toe-backend-8p9l.onrender.com"
+    : "http://localhost:5000";
 
 export default io(SOCKET_URL);
